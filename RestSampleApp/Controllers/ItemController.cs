@@ -18,15 +18,25 @@ namespace RestSampleApp.Controllers
         [HttpPost]
         public async Task<ActionResult<long>> CreateItem([FromBody] ItemRequest itemRequest)
         {
-            var result = await itemService.CreateAsync(itemRequest);
-            return result > 0 ? Ok(result) : BadRequest("Error creating item");
+            if (bool.TryParse(HttpContext.Session.GetString("UserLoggedIn"), out var loggedIn) && loggedIn)
+            {
+                var result = await itemService.CreateAsync(itemRequest);
+                return result > 0 ? Ok(result) : BadRequest("Error creating item");
+            }
+
+            return Unauthorized("User is not authenticated");
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<ItemResponse>> GetItems()
         {
-            var result = itemService.GetAllAsync();
-            return Ok(result);
+            if (bool.TryParse(HttpContext.Session.GetString("UserLoggedIn"), out var loggedIn) && loggedIn)
+            {
+                var result = itemService.GetAllAsync();
+                return Ok(result);
+            }
+
+            return Unauthorized("User is not authenticated");
         }
     }
 }

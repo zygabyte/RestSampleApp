@@ -33,7 +33,13 @@ namespace RestSampleApp.Controllers
         public async Task<ActionResult<IEnumerable<UserResponse>>> LogInAsync([FromBody] UserRequest userRequest)
         {
             var result = await userService.LoginAsync(userRequest);
-            return result ? Ok(result) : BadRequest("Invalid credentials");
+            if (result)
+            {
+                HttpContext.Session.SetString("UserLoggedIn", "true");
+                return Ok(result);
+            }
+            
+            return BadRequest("Invalid credentials");
         }
     }
 }
